@@ -1,0 +1,570 @@
+import pyttsx3
+import pickle
+import speech_recognition as sr
+import datetime
+import wikipedia
+import webbrowser
+import os
+import smtplib
+import sys
+import wolframalpha
+import random,os
+from kanren import run, var, fact
+from kanren.assoccomm import eq_assoccomm as eq
+from kanren.assoccomm import commutative, associative
+import cv2
+import numpy as np
+import math
+import time
+import pyautogui
+import getpass
+
+
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+# print(voices[0].id)
+engine.setProperty('voice', voices[1].id)
+
+client = wolframalpha.Client('6VP2K5-T2JKQQLRRR')
+
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+
+def print_speak(response):
+    print(response)
+    speak(response)
+
+def clear():
+  os.system('cls')
+
+def start_command():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening....")
+        r.pause_threshold = 0.5
+        audio = r.listen(source)
+
+    try:
+        print("Reconizing....")
+        query = r.recognize_google(audio, language='en-in')
+        print(f"User said: {query}\n")
+
+    except:
+       #print(e)
+       print("waiting for start command")
+       return "None"
+       
+    return query
+
+def takeCommand():
+    #It takes michrophone input from the user and returns output
+
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening....")
+        r.pause_threshold = 0.7
+        audio = r.listen(source)
+    
+    try:
+        print("Reconizing....")
+        query = r.recognize_google(audio, language='en-in')
+        print(f"User said: {query}\n")
+
+    except:
+       #print(e)
+       print("Can you please repeat")
+    #    speak("Can you please repeat")  
+       return ""
+    return query
+
+def voiceboard():
+    #It takes michrophone input from the user and returns output
+
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening....")
+        r.pause_threshold = 1.0
+        audio = r.listen(source)
+    
+    try:
+        print("Reconizing....")
+        query = r.recognize_google(audio, language='en-in')
+        print(f"User said: {query}\n")
+
+    except:
+       #print(e)
+       print("Can you please repeat")
+    #    speak("Can you please repeat")  
+       return ""
+    return query
+
+def path():
+    t = input("Enter the command name in lowercase letters-")
+    r = input("Enter the path of the app you want to launch-")
+    thisdict[t] = r
+    print(thisdict)
+    file = "F:\\Jarvis\\path.pkl"
+    fileobj = open(file, 'wb')
+    pickle.dump(thisdict, fileobj)
+    fileobj.close
+    print_speak("New path has been set")
+
+def remove_path():
+    print(thisdict)
+    r=input("Enter the command you want to remove- ")
+    del thisdict[r]
+    file = "F:\\Jarvis\\path.pkl"
+    fileobj = open(file, 'wb')
+    pickle.dump(thisdict, fileobj)
+    fileobj.close
+    print(thisdict)
+
+
+def send_email():
+    speak("Enter your email address")
+    email_address = input('Enter your email address- ')
+    speak("Enter your password")
+    password = input('Enter your password -')
+    #password = getpass('Enter your password -')
+    speak("Enter the reciever's email address ")
+    receiver_address = input("Enter the reciever's email address- ")
+    # print(email_address)
+    # print(password)
+    f = "do you want to send your mail"
+    j = "Would you like to type your mail or speak"
+    subject="Empty, no input from user"
+    body="Empty, no input from the user"
+    while True:
+        clear()
+        with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            smtp.ehlo()
+            smtp.login(email_address, password)
+            print(j)
+            speak(j)
+            query = takeCommand().lower()
+
+            if "yes" in query or 'type' in query:
+                print("What is the subject of the mail")
+                subject = input()
+                print("What is the body of the mail")
+                body = input()
+
+            elif "no" in query or "say" in query or "speak" in query:
+                k = "What is the subject of the mail"
+                print(k)
+                speak(k)
+                query = takeCommand().lower()
+                subject = query
+                p = "What is the body of the mail"
+                print(p)
+                speak(p)
+                query = voiceboard().lower()
+                body = query
+
+            elif "exit" in query:
+                break
+
+            while True:
+                clear()
+                print("Sir this is the subject and body of your mail")
+                speak("Sir this is the subject and body of your mail")
+                print(subject)
+                print(body)
+                print(f)
+                speak(f)
+                query = takeCommand().lower()
+                if "send mail" in query or 'yes' in query:
+                    msg = f'Subject: {subject}\n\n{body}'
+                    smtp.sendmail(email_address, receiver_address, msg)
+                    t = "Your mail has been sent"
+                    print(t)
+                    speak(t)
+                    return 0 # return "none"
+                
+                elif "rewrite" in query or "no" in query or "correct" in query:
+                    print("you can now rewrite the email")
+                    speak("you can now rewrite the email")
+                    break
+
+                elif "exit" in query:
+                    return 0 # return "none"
+
+def write_notepad():
+    pyautogui.hotkey('winleft')
+    pyautogui.click(123, 1052, duration=0.8)
+    #print(pg.position())
+    pyautogui.typewrite('notepad')
+    pyautogui.press('enter')
+
+
+def wishMe():
+    hour = int(datetime.datetime.now().hour)
+    if hour >= 0 and hour < 12:
+        speak("Good Morning!")
+        print("Good Morning!")
+
+    elif hour >= 12 and hour < 18:
+        speak("Good Afternoon")
+        print("Good Afternoon!")
+
+    else:
+        speak("Good Evening!")
+        print("Good Evening!")
+
+    print("It's your Virtual Assistant . Please tell me how I can help you")
+    speak("It's your Virtual Assistant . Please tell me how I can help you")
+
+if __name__ == "__main__":
+    while True:
+        query = start_command().lower()
+        print(query)
+        clear()
+        if 'hi jarvis' in query or "wake up" in query or "hello jarvis" in query:
+            wishMe()
+            while True:
+                clear()
+                query = takeCommand().lower()
+                #Logic for executing task based on query
+                file = "F:\\Jarvis\\path.pkl"
+                fileobj = open(file, 'rb')
+                thisdict = pickle.load(fileobj)
+                if 'wikipedia' in query:
+                    speak('Searching wikipedia.....')
+                    query = query.replace("wikipedia", "")
+                    results = wikipedia.summary(query,sentences=2)
+                    speak("Accoring to wikipedia")
+                    print(results)
+                    speak(results)
+                    
+                elif 'open youtube' in query:
+                    print("OK!, Opening Youtube")
+                    speak("OK!, Opening Youtube")
+                    webbrowser.open("youtube.com")
+
+                elif 'maximize' in query:
+                    pyautogui.hotkey('winleft', 'up')
+
+                elif 'close the window' in query or 'exit this app' in query or 'close the app' in query or 'close this window' in query:
+                    pyautogui.hotkey('alt', 'f4')
+
+                elif 'minimize' in query or 'minimise' in query:
+                    pyautogui.hotkey('winleft', 'm')
+                    
+                elif 'open google' in query:
+                    print("OK!, Opening Google") 
+                    speak("OK!, Opening Google")   
+                    webbrowser.open("google.com") 
+
+                elif 'open github' in query:  
+                    print("OK!, Opening Github")
+                    speak("OK!, Opening Github")  
+                    webbrowser.open("github.com") 
+
+                elif 'open stackoverflow' in query:
+                    print("OK!, Opening StackOverflow")
+                    speak("OK!, Opening StackOverflow")    
+                    webbrowser.open("stackoverflow.com")
+
+                elif 'open gmail' in query:
+                    print("OK!, Opening Gmail")    
+                    speak("OK!, Opening Gmail")
+                    webbrowser.open("gmail.com")
+
+                elif 'open facebook' in query:
+                    print("OK!, Opening Facebook")
+                    speak("OK! Opening Facebook")    
+                    webbrowser.open("facebook.com")
+
+                elif "open calculator" in query or query=="calculator":
+                    l="opening calculator"
+                    print_speak(l)
+                    pyautogui.hotkey('winleft')
+                    pyautogui.click(123, 1052, duration=0.8)
+                    #print(pg.position())
+                    pyautogui.typewrite('cmd')
+                    pyautogui.press('enter')
+                    time.sleep(0.5)
+                    pyautogui.typewrite('python')
+                    pyautogui.press("enter")
+                    k="Please type the operations you want to perform"
+                    print_speak(k)
+                    break
+
+                elif 'bb ki vines' in query or 'BB ki vines' in query:
+                    b = 'Openning youtube channel bb ki vine'
+                    speak(b)
+                    print(b)
+                    pyautogui.hotkey('winleft')
+                    #print(pg.position())
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.typewrite('https://www.youtube.com/results?search_query=bb+ki+vines')
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.press('enter')
+                    
+
+                elif 'TVF' in query or 'tvf' in query:
+                    b = 'Openning youtube channel TVF'
+                    speak(b)
+                    print(b)
+                    pyautogui.hotkey('winleft')
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.typewrite('https://www.youtube.com/results?search_query=TVF')
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.press('enter')
+                    
+
+                elif 'TSP' in query or 'tsp' in query:
+                    b = 'Openning youtube channel TSP'
+                    speak(b)
+                    print(b)
+                    pyautogui.hotkey('winleft')
+                    #print(pg.position()
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.typewrite('https://www.youtube.com/results?search_query=tsp')
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.press('enter')
+                    
+
+                elif 'Domics' in query:
+                    b = 'Openning youtube channel Domics'
+                    speak(b)
+                    print(b)
+                    pyautogui.hotkey('winleft')
+                    #print(pg.position())
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.typewrite('https://www.youtube.com/results?search_query=domics')
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.press('enter')
+                    
+
+                elif 'The timeliners' in query or 'The time liners' in query:
+                    b = 'Openning youtube channel The time liners'
+                    speak(b)
+                    print(b)
+                    pyautogui.hotkey('winleft')
+                    #print(pg.position())
+                    pyautogui.click(123, 1052, duration=0.8)
+                    pyautogui.press('enter')
+                    pyautogui.click(280, 82, duration=0.5)
+                    pyautogui.typewrite('https://www.youtube.com/results?search_query=the+timeliners')
+                    pyautogui.press('enter')
+
+                
+                elif 'voice keyboard' in query:
+                    v =  'opening voice keyboard'
+                    print(v)
+                    speak(v)
+                    query = voiceboard().lower()
+                    para = query
+                    pyautogui.typewrite(para)
+
+                elif 'voice search' in query:
+
+                    pyautogui.click(123, 1052, duration=0.8)
+                    query = takeCommand().lower()
+                    search = query
+                    pyautogui.typewrite(search)
+                    pyautogui.press('enter')
+
+                elif "open notepad" in query or "notepad" in query:
+                    p='opening notepad'
+                    print(p)
+                    speak(p)
+                    write_notepad()
+
+                elif query == "enter":
+                    pyautogui.press('enter')
+
+                elif query == "up":
+                    pyautogui.press('up')
+
+                elif query == "right":
+                    pyautogui.press('right')
+
+                elif query == "left":
+                    pyautogui.press('left')
+
+                elif query == "down":
+                    pyautogui.press('down')
+
+                elif query=="escape":
+                    pyautogui.press('esc')
+
+                
+                elif 'screenshot' in query:
+                    scr1 = pyautogui.screenshot()
+                    scr1.save('screenshot.png')
+        
+                
+                elif "what\'s up" in query or 'how are you' in query:
+                    stMsgs = ['Nice!' , 'I am nice and full of energy' , 'Fine nothing to do today' , 'fine, sir']
+                    speak(random.choice(stMsgs))
+                    
+
+                elif "how am i looking today" in query or "how i am looking today" in query:
+                    apriciate=['you are looking awesome,sir' , 'you always look great,sir' , 'you look like a sunshine today' , 'great,sir']
+                    speak(random.choice(apriciate))
+
+                elif "tell me a joke" in query:
+                    jk=['Whoever said that the definition of insanity is doing the same thing over and over again and expecting different results has obviously never had to reboot a computer',
+                    'Did you hear about the monkeys who shared an Amazon account? They were Prime mates' , 'How does a computer get drunk? It takes screenshot' , 'I just got fired from my job at the keyboard factory. They told me I wasn’t putting in enough shifts']
+                    speak(random.choice(jk))
+
+                elif 'virtual mouse' in query:
+                    vmouse = "D:\\workspace\\Hand-Gestures\\virtualmouse.py"
+                    os.startfile(vmouse)
+                    break
+
+                elif 'play music' in query or 'open music' in query or 'hit it dolly' in query:
+                    print("OK!, Playing music")
+                    speak("OK!, Playing music")
+                    music_dir= 'D:\\Music'
+                    songs = os.listdir(music_dir)
+                    print(songs)
+                    os.startfile(os.path.join(music_dir, random.choice(songs)))
+                    break
+                
+                elif  'what can you do for me' in query:
+                    print("I can play music,open google, youtube and manymore")
+                    speak("I can play music,open google, youtube and manymore")
+
+
+                elif 'open photos' in query or 'open pictures' in query:
+                    print("OK!, Opening photos")
+                    speak("OK!, Opening photos")
+                    photo_dir= 'E:\\photos'
+                    photos = os.listdir(photo_dir)
+                    print(photos)
+                    os.startfile(os.path.join(photo_dir, photos[0]))   
+                    
+
+                elif 'the time' in query:
+                    strTime = datetime.datetime.now().strftime("%H:%M:%S")
+                    print(strTime)
+                    speak(f"Sir, the time is {strTime}") 
+
+
+                elif 'open studio' in query:
+                    codePath = "C:\\Users\\R P SINGH\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+                    print("OK!, Opening virtual studio")
+                    speak("OK!, Opening virtual studio")
+                    os.startfile(codePath)
+
+                elif 'open vlc' in query:
+                    vlplayer = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
+                    print("OK!, Opening vlc media player")
+                    speak("OK!, Opening vlc media player")
+                    os.startfile(vlplayer)
+                
+
+                elif 'open android' in query:
+                    androidPath = "C:\\Program Files\\Android\\Android Studio\\bin\\studio64.exe"
+                    print("OK!, Opening android studio")
+                    speak("OK!, Opening android studio")
+                    os.startfile(androidPath)
+
+                
+                elif 'open pycharm' in query:
+                    pypath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\JetBrains\\PyCharm Community Edition 2019.3.1.lnk"
+                    print("OK!, Opening Pycharm")
+                    speak("OK!, Opening Pycharm")
+                    os.startfile(pypath)
+
+
+                elif 'open chrome' in query:
+                    chromePath = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+                    print("OK!, Opening chrome")
+                    speak("OK!, Opening chrome")
+                    os.startfile(chromePath)
+
+                elif 'open ccleaner' in query:
+                    cleanerPath = "C:\\Program Files\\CCleaner\\CCleaner64.exe" 
+                    print("OK!, Opening ccleaner")
+                    speak("OK!, Opening cclenaer")     
+                    os.startfile(cleanerPath) 
+
+                
+                elif 'send email' in query or "email" in query or 'sent an email' in query:
+                    send_email()
+                    
+
+                elif 'shutdown' in query:
+                    print("Want to shutdown your computer ? (yes or no): ")
+                    speak("Want to shutdown your computer ? (yes or no): ")
+                    query = takeCommand().lower()
+                    if 'no' in query:
+                        continue
+                    elif 'yes' in query:
+                        os.system("shutdown /s /t 1")
+                        break
+
+                elif 'restart' in query or 'reboot' in query:
+                    print("Want to restart your computer ? (yes or no): ")
+                    speak("Want to restart your computer ? (yes or no): ")
+                    query = takeCommand().lower()
+                    if 'no' in query:
+                        continue
+                
+                    elif 'yes' in query:
+                        os.system("shutdown /r /t 1")
+                        break
+
+                elif 'exit' in query or 'stop' in query or 'close' in query:
+                    print('As you wish sir')
+                    speak('As you wish sir')
+                    break
+
+                elif "tell path" in query or "tenpath" in query or 'sofia' in query:
+                    file = "F:\\Jarvis\\path.pkl"
+                    fileobj = open(file, 'rb')
+                    thisdict = pickle.load(fileobj)
+                    print(thisdict)
+                    time.sleep(10)
+
+                elif "set new path" in query:
+                    path()
+                
+                elif query in thisdict:
+                    l="opening "+query
+                    print_speak(l)
+                    os.startfile(thisdict[query])
+
+                elif "remove path" in query:
+                    remove_path()
+
+
+                elif query:
+                            speak('Serching...')
+                            try:
+                                try:
+                                    res = client.query(query)
+                                    results = next(res.results).text
+                                    print('Got it')
+                                    speak('Got it')
+                                    print(results)
+                                    speak(results)
+                                except:
+                                    results = wikipedia.summary(query, sentences=2)
+                                    speak('Got it')
+                                    print_speak(results)
+
+                            except:
+                                print_speak("Can't do that right now, wait for future updates")
+
+        elif 'exit virtual assistant' in query or 'close jarvis' in query or 'shutdown jarvis' in query:
+                f="Are you sure because i won't be able to respond to your commands"
+                speak(f)
+                print(f)
+                query=takeCommand().lower()
+                if 'yes' in query or 'quit' in query or 'close' in query:
+                    exiting_statement = "See you later sir, Have a nice day"
+                    print(exiting_statement)
+                    speak(exiting_statement)
+                    exit()
+                else:
+                    continue
+         

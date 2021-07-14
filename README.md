@@ -33,7 +33,7 @@ The project was to build a program that helps the user to find, open any applica
 
 It is activated when given the command “Hi Jarvis”
 
-After receiving the command the assistant will greet you with 
+After receiving the command the assistant will greet you which can be
 Good morning, Good afternoon, Good evening or Good night depending on the time in computer.
 
 We can give many commands like-
